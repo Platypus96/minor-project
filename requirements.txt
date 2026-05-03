@@ -1,0 +1,11 @@
+torch
+torchaudio
+funasr
+modelscope
+gradio
+requests
+python-dotenv
+numpy
+scipy
+nltk
+jiwer

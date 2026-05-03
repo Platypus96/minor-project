@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+speech_pipeline/
+
+# Media and Outputs
+outputs/
+*.wav
+*.mp3
+
+# Model Checkpoints (Optional to ignore if they are very large)
+pth files/
+checkpoints/
+
+# OS generated files
+.DS_Store
+Thumbs.db
