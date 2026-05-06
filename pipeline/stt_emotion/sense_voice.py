@@ -31,22 +31,34 @@ class SpeechEmotionExtractor:
     #  Public API                                                         #
     # ------------------------------------------------------------------ #
 
-    def extract(self, audio_path: str) -> dict:
+    def extract(self, audio_path: str, language: str = "auto") -> dict:
         """
         Analyse an audio file and return::
 
             {
-                "text":    str,          # cleaned transcript
-                "emotion": str,          # HAPPY | SAD | ANGRY | NEUTRAL | …
-                "gender":  str,          # MALE | FEMALE
-                "raw":     str,          # raw model output (for debugging)
+                "text":          str,  # cleaned transcript
+                "emotion":       str,  # HAPPY | SAD | ANGRY | NEUTRAL | ...
+                "gender":        str,  # MALE | FEMALE
+                "detected_lang": str,  # ISO 639-1 code, e.g. 'en', 'zh'
+                "raw":           str,  # raw model output (for debugging)
             }
+
+        Parameters
+        ----------
+        language : str
+            ISO 639-1 code ('en', 'zh', 'hi', ...) or 'auto' for
+            SenseVoice to detect the language automatically.
         """
+        from pipeline.translation import detect_language_from_tag
+
+        # SenseVoice expects 'auto' or a specific language code
+        sv_lang = language if language != "auto" else "auto"
+
         # --- SenseVoice inference ---
         result = self.model.generate(
             input=audio_path,
             cache={},
-            language="en",
+            language=sv_lang,
             use_itn=True,
             batch_size_s=60,
         )
@@ -56,6 +68,9 @@ class SpeechEmotionExtractor:
         emotion = self._parse_emotion(raw_text)
         clean_text = self._clean_text(raw_text)
 
+        # --- Detect language from SenseVoice tags ---
+        detected_lang = detect_language_from_tag(raw_text) if language == "auto" else language
+
         # --- Gender from pitch ---
         gender = self._detect_gender(audio_path)
 
@@ -63,6 +78,7 @@ class SpeechEmotionExtractor:
             "text": clean_text,
             "emotion": emotion,
             "gender": gender,
+            "detected_lang": detected_lang,
             "raw": raw_text,
         }
 

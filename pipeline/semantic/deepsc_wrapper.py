@@ -96,6 +96,10 @@ class DeepSCWrapper:
         self.unk_idx = 3
         self.num_vocab = 0
 
+        # Symbol storage for constellation diagrams
+        self._last_tx_symbols = None
+        self._last_rx_symbols = None
+
         # --- Resolve checkpoint directory ---
         if checkpoint_dir and os.path.isdir(checkpoint_dir):
             self._checkpoint_dir = checkpoint_dir
@@ -137,10 +141,18 @@ class DeepSCWrapper:
         Full semantic communication pass:
         text → encode → channel → decode → reconstructed text.
         """
+        self._last_tx_symbols = None
+        self._last_rx_symbols = None
         if self.mock_mode:
             return self._mock_transmit(text)
         else:
             return self._real_transmit(text)
+
+    def get_last_symbols(self):
+        """Return (pre_channel, post_channel) symbol tensors as numpy arrays."""
+        pre = self._last_tx_symbols.detach().cpu().numpy() if self._last_tx_symbols is not None else None
+        post = self._last_rx_symbols.detach().cpu().numpy() if self._last_rx_symbols is not None else None
+        return pre, post
 
     # ------------------------------------------------------------------ #
     #  MOCK mode — word-level simulation                                  #
@@ -178,8 +190,14 @@ class DeepSCWrapper:
         power = indices.pow(2).mean().sqrt().clamp(min=1e-8)
         tx = indices / power
 
+        # Store transmitted symbols for constellation
+        self._last_tx_symbols = tx.clone()
+
         # Channel
         rx = self.channel.forward(tx)
+
+        # Store received symbols for constellation
+        self._last_rx_symbols = rx.clone()
 
         # Denormalize
         rx = rx * power
@@ -358,10 +376,16 @@ class DeepSCWrapper:
         channel_enc_output = model.channel_encoder(enc_output)
         tx_sig = power_normalize(channel_enc_output)
 
+        # Store transmitted symbols for constellation
+        self._last_tx_symbols = tx_sig.clone()
+
         # Pass through channel (using the SAME channel implementation as training)
         snr_db = self.channel.snr_db
         noise_std = self._snr_to_noise(snr_db)
         rx_sig = self.channel.forward_training_style(tx_sig, noise_std)
+
+        # Store received symbols for constellation
+        self._last_rx_symbols = rx_sig.clone()
 
         # Channel decode
         memory = model.channel_decoder(rx_sig)

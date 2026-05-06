@@ -1,0 +1,691 @@
+/* ================================================================
+   Semantic Speech Communication — Premium Academic Light Theme
+   Clean white + sky-blue palette, no dark/gray/black tones
+   ================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ----------------------------------------------------------------
+   Design Tokens
+---------------------------------------------------------------- */
+:root {
+  --white:        #ffffff;
+  --bg:           #f7faff;          /* very light sky tint */
+  --surface:      #ffffff;
+  --border:       #dce8fb;          /* soft periwinkle border */
+  --accent:       #2563eb;          /* electric blue */
+  --accent-light: #eff6ff;          /* lightest blue tint */
+  --accent-mid:   #bfdbfe;          /* medium blue tint */
+  --teal:         #0ea5e9;
+  --emerald:      #10b981;
+  --amber:        #f59e0b;
+  --rose:         #f43f5e;
+  --ink:          #1e3a5f;          /* deep navy for headings */
+  --body:         #334155;          /* readable dark-blue-gray for body */
+  --muted:        #64748b;          /* lighter body copy */
+  --hint:         #94a3b8;          /* placeholder/hint text */
+  --shadow-sm:    0 1px 3px rgba(37, 99, 235, 0.08);
+  --shadow-md:    0 4px 16px rgba(37, 99, 235, 0.10);
+  --shadow-lg:    0 8px 32px rgba(37, 99, 235, 0.13);
+  --r:            14px;             /* default border radius */
+  --font:         'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ----------------------------------------------------------------
+   Global Reset for Gradio
+---------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+body,
+.main,
+gradio-app {
+  background: var(--bg) !important;
+  color: var(--body) !important;
+  font-family: var(--font) !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+.gradio-container {
+  background: var(--white) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--r) !important;
+  box-shadow: var(--shadow-sm) !important;
+  padding: 30px !important;
+  margin-top: 20px !important;
+  margin-bottom: 20px !important;
+}
+
+/* Kill every dark/gray background Gradio's Soft theme injects */
+.gradio-container > div,
+.tabs,
+.tabitem,
+.tab-content,
+.block,
+.form,
+.wrap,
+.panel {
+  background: transparent !important;
+}
+
+/* ----------------------------------------------------------------
+   Header
+---------------------------------------------------------------- */
+.ssc-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 28px;
+  background: var(--white);
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* decorative right-side wave */
+.ssc-header::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 220px;
+  background: linear-gradient(135deg, var(--accent-light) 0%, #dbeafe 100%);
+  clip-path: ellipse(100% 100% at 100% 50%);
+}
+
+.ssc-logo {
+  width: 58px;
+  height: 58px;
+  border-radius: 10px;
+  object-fit: contain;
+  background: var(--white);
+  border: 1px solid var(--border);
+  padding: 4px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.ssc-header-text {
+  position: relative;
+  z-index: 1;
+}
+
+.ssc-header-text h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink) !important;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.ssc-header-text p {
+  margin: 3px 0 0;
+  font-size: 0.88rem;
+  color: var(--muted) !important;
+  font-weight: 400;
+}
+
+.ssc-badge {
+  margin-left: auto;
+  position: relative;
+  z-index: 1;
+  background: var(--accent);
+  color: var(--white) !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 99px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* ----------------------------------------------------------------
+   Tab Navigation
+---------------------------------------------------------------- */
+.tabs > .tab-nav {
+  background: var(--white) !important;
+  border-radius: var(--r) !important;
+  border: 1px solid var(--border) !important;
+  padding: 4px !important;
+  display: flex !important;
+  gap: 4px !important;
+  margin-bottom: 20px !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.tabs > .tab-nav > button {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 9px 20px !important;
+  font-family: var(--font) !important;
+  font-size: 0.88rem !important;
+  font-weight: 500 !important;
+  color: var(--muted) !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  flex: 1;
+}
+
+.tabs > .tab-nav > button:hover {
+  background: var(--accent-light) !important;
+  color: var(--accent) !important;
+}
+
+.tabs > .tab-nav > button.selected {
+  background: var(--accent) !important;
+  color: var(--white) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25) !important;
+}
+
+/* ----------------------------------------------------------------
+   Cards / Panels
+---------------------------------------------------------------- */
+.ssc-card {
+  background: var(--white) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--r) !important;
+  padding: 22px 24px !important;
+  box-shadow: var(--shadow-sm) !important;
+  margin-bottom: 16px !important;
+}
+
+.ssc-card-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent) !important;
+  margin: 0 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--accent-light);
+}
+
+/* Input section sidebar */
+.ssc-sidebar {
+  background: var(--white) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--r) !important;
+  padding: 20px !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* ----------------------------------------------------------------
+   Stepper
+---------------------------------------------------------------- */
+.ssc-stepper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 24px 32px 20px;
+  margin-bottom: 20px;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+
+.ssc-step-track {
+  position: absolute;
+  top: 44px;
+  left: calc(12.5% + 20px);
+  right: calc(12.5% + 20px);
+  height: 2px;
+  background: var(--accent-mid);
+}
+
+.ssc-step-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.5s ease;
+}
+
+.ssc-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  flex: 1;
+}
+
+.ssc-step-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--accent-mid);
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--hint);
+  transition: all 0.3s ease;
+}
+
+.ssc-step-label {
+  margin-top: 9px;
+  font-size: 0.77rem;
+  font-weight: 500;
+  color: var(--hint);
+  text-align: center;
+  transition: all 0.3s ease;
+  max-width: 90px;
+  line-height: 1.3;
+}
+
+/* Active step */
+.ssc-step.active .ssc-step-circle {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+  box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.12);
+  animation: pulse-ring 1.8s infinite;
+}
+
+.ssc-step.active .ssc-step-label {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Done step */
+.ssc-step.done .ssc-step-circle {
+  border-color: var(--emerald);
+  background: var(--emerald);
+  color: var(--white);
+}
+
+.ssc-step.done .ssc-step-label {
+  color: var(--emerald);
+  font-weight: 600;
+}
+
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(37,99,235,0.3); }
+  70%  { box-shadow: 0 0 0 10px rgba(37,99,235,0); }
+  100% { box-shadow: 0 0 0 0 rgba(37,99,235,0); }
+}
+
+/* ----------------------------------------------------------------
+   Fade-in for result cards
+---------------------------------------------------------------- */
+.ssc-result-card {
+  background: var(--white) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--r) !important;
+  padding: 22px 24px !important;
+  box-shadow: var(--shadow-sm) !important;
+  margin-bottom: 16px !important;
+  animation: fadeUp 0.4s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ssc-result-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ink) !important;
+  margin: 0 0 14px;
+  letter-spacing: -0.01em;
+}
+
+/* ----------------------------------------------------------------
+   Badges
+---------------------------------------------------------------- */
+.badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 99px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.badge-emotion {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.badge-lang {
+  background: var(--accent-light);
+  color: var(--accent);
+  border: 1px solid var(--accent-mid);
+}
+
+/* ----------------------------------------------------------------
+   BLEU Score Bar
+---------------------------------------------------------------- */
+.bleu-wrap {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-top: 14px;
+}
+
+.bleu-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink) !important;
+  margin-bottom: 8px;
+}
+
+.bleu-track {
+  height: 10px;
+  background: var(--accent-mid);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.bleu-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--teal));
+  border-radius: 5px;
+  transition: width 0.8s ease;
+}
+
+/* ----------------------------------------------------------------
+   Channel Info / Info pill
+---------------------------------------------------------------- */
+.channel-pill {
+  display: inline-block;
+  background: var(--accent-light);
+  color: var(--accent) !important;
+  border: 1px solid var(--accent-mid);
+  border-radius: 6px;
+  padding: 5px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+/* ----------------------------------------------------------------
+   Channel Comparison Cards
+---------------------------------------------------------------- */
+.ch-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ch-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink) !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ch-bleu {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 99px;
+}
+
+.ch-bleu.high { background: #d1fae5; color: #065f46; }
+.ch-bleu.mid  { background: #fef3c7; color: #92400e; }
+.ch-bleu.low  { background: #fee2e2; color: #991b1b; }
+
+.ch-text {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.87rem;
+  color: var(--body) !important;
+  line-height: 1.5;
+}
+
+/* ----------------------------------------------------------------
+   Bandwidth Dashboard
+---------------------------------------------------------------- */
+.bw-dashboard {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 22px 24px;
+}
+
+.bw-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.bw-stat {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+}
+
+.bw-stat.highlight {
+  background: var(--accent-light);
+  border-color: var(--accent-mid);
+}
+
+.bw-stat-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink) !important;
+  line-height: 1;
+}
+
+.bw-stat-lbl {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--muted) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+
+.bw-bars { margin-bottom: 16px; }
+
+.bw-bar-row { margin-bottom: 12px; }
+
+.bw-bar-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.bw-method { font-size: 0.82rem; font-weight: 700; color: var(--ink) !important; }
+.bw-detail { font-size: 0.75rem; color: var(--muted) !important; }
+
+.bw-track {
+  height: 30px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.bw-bar-inner {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border-radius: 5px;
+  transition: width 0.8s ease;
+  min-width: 80px;
+}
+
+.bw-bar-inner.trad     { background: linear-gradient(90deg, #fb7185, #f43f5e); }
+.bw-bar-inner.semantic { background: linear-gradient(90deg, #34d399, #10b981); }
+
+.bw-bar-lbl {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--white) !important;
+  white-space: nowrap;
+}
+
+.bw-timing {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.bw-time { text-align: center; }
+.bw-time-lbl { font-size: 0.7rem; font-weight: 600; color: var(--muted) !important; text-transform: uppercase; letter-spacing: 0.04em; }
+.bw-time-val { font-size: 0.95rem; font-weight: 700; color: var(--ink) !important; margin-top: 2px; }
+
+/* ----------------------------------------------------------------
+   Info banner
+---------------------------------------------------------------- */
+.ssc-info {
+  background: var(--accent-light);
+  border: 1px solid var(--accent-mid);
+  border-radius: 10px;
+  padding: 13px 18px;
+  font-size: 0.85rem;
+  color: var(--ink) !important;
+  line-height: 1.55;
+  margin-bottom: 18px;
+}
+
+/* ----------------------------------------------------------------
+   Primary Button override
+---------------------------------------------------------------- */
+.ssc-btn,
+button.primary {
+  background: var(--accent) !important;
+  color: var(--white) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  font-family: var(--font) !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  padding: 11px 24px !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.25) !important;
+  transition: all 0.2s ease !important;
+}
+
+button.primary:hover {
+  background: #1d4ed8 !important;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ----------------------------------------------------------------
+   Gradio element resets — minimal overrides so we don't break plugins
+---------------------------------------------------------------- */
+
+/* Textareas and Inputs */
+.gr-text-input,
+.gr-textarea,
+.input-text,
+textarea,
+input[type=text],
+input[type=number] {
+  background: var(--bg) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--body) !important;
+  border-radius: 8px !important;
+  font-family: var(--font) !important;
+  font-size: 0.88rem !important;
+}
+
+textarea::placeholder { color: var(--hint) !important; }
+
+/* Dropdowns */
+.wrap-inner,
+.multiselect,
+ul.options {
+  background: var(--white) !important;
+  border-color: var(--border) !important;
+}
+
+/* Slider thumb */
+input[type=range] { accent-color: var(--accent) !important; }
+
+/* Accordion */
+.accordion-header,
+details > summary {
+  background: var(--bg) !important;
+  color: var(--body) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+}
+
+/* Markdown headings inside Gradio */
+.prose h3 {
+  color: var(--ink) !important;
+  font-size: 0.93rem !important;
+  font-weight: 700 !important;
+  margin: 0 0 12px !important;
+}
+
+.prose h4 {
+  color: var(--muted) !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 8px !important;
+}
+
+/* Audio component */
+.audio-wrap {
+  background: var(--white) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
+}
+
+/* Image component (before image is loaded) */
+.image-preview,
+.image-container {
+  background: var(--bg) !important;
+  border: 1px dashed var(--accent-mid) !important;
+  border-radius: 10px !important;
+}
+
+/* ----------------------------------------------------------------
+   Footer
+---------------------------------------------------------------- */
+.ssc-footer {
+  text-align: center;
+  color: var(--hint) !important;
+  font-size: 0.8rem;
+  padding: 18px 0 8px;
+  border-top: 1px solid var(--border);
+  margin-top: 24px;
+}
+
+/* ----------------------------------------------------------------
+   Responsive
+---------------------------------------------------------------- */
+@media (max-width: 800px) {
+  .bw-stats  { grid-template-columns: repeat(2, 1fr); }
+  .bw-timing { grid-template-columns: 1fr; }
+  .ssc-header { flex-direction: column; text-align: center; }
+  .ssc-badge { margin: 8px auto 0; }
+}
