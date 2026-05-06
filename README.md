@@ -2,6 +2,8 @@
 
 An end-to-end semantic communication system that transmits speech over wireless channels using **DeepSC (Deep Semantic Communication)**. The system extracts not just the text, but also the **emotion** and **gender** of the speaker to reconstruct high-fidelity, expressive speech at the receiver.
 
+> **📄 Read the full project documentation in the [Project Report (REPORT.md)](REPORT.md)**
+
 ![UI Screenshot](pipeline/iiita_logo.png) *(IIIT Allahabad Project)*
 
 ## 🌟 Key Features
@@ -11,7 +13,9 @@ An end-to-end semantic communication system that transmits speech over wireless 
 - **DeepSC (Transformer):** A deep semantic communication model trained on the Europarl dataset to compress and transmit meaning over noisy channels.
 - **Wireless Channel Simulation:** Supports **AWGN**, **Rayleigh**, and **Rician** fading channels with adjustable SNR.
 - **Emotion-Aware TTS:** Reconstructs speech using the `Kokoro` model via TTS.ai API, adjusting tone based on detected emotions.
-- **Web Interface:** A sleek Gradio-based dashboard for real-time experimentation.
+- **Multilingual Translation Bridge:** Cross-lingual semantic communication using automated translation (`deep-translator`).
+- **Real-Time Analytics:** Live dashboards for bandwidth utilization comparisons, BLEU score degradation, and semantic symbol constellation visualization.
+- **Web Interface:** A sleek Gradio-based dashboard for real-time experimentation with custom light/dark themes.
 
 ---
 
