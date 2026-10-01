@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bandwidth vs. Time Efficiency: Semantic S2S vs. S2T2S | IIIT Allahabad</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #3b82f6;
+      --secondary: #0f172a;
+      --accent-green: #059669;
+      --accent-red: #dc2626;
+      --accent-amber: #d97706;
+      --bg: #0f172a;
+      --slide-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --card-bg: #f8fafc;
+      --card-border: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Presentation Frame (16:9) */
+    .deck-container {
+      position: relative;
+      width: 95vw;
+      max-width: 1280px;
+      height: 85vh;
+      max-height: 720px;
+      background: var(--slide-bg);
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Slide Content Container */
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+      padding: 36px 48px;
+      flex-direction: column;
+      overflow-y: auto;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Headers */
+    .slide-header {
+      margin-bottom: 20px;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .slide-header h2 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+    }
+
+    .slide-header .tag {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #eff6ff;
+      color: var(--primary-light);
+      letter-spacing: 0.5px;
+    }
+
+    /* Layout Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      align-items: center;
+      height: 100%;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    /* Card styling */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--secondary);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    ul.bullets {
+      padding-left: 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    ul.bullets li {
+      margin-bottom: 8px;
+    }
+
+    ul.bullets li strong {
+      color: var(--text-main);
+    }
+
+    /* Image Display */
+    .chart-box {
+      width: 100%;
+      height: 100%;
+      max-height: 480px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8fafc;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      overflow: hidden;
+      padding: 8px;
+    }
+
+    .chart-box img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    /* Metric highlight pill */
+    .highlight-pill {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .pill-green { background: #d1fae5; color: #065f46; }
+    .pill-red { background: #fee2e2; color: #991b1b; }
+    .pill-blue { background: #dbeafe; color: #1e40af; }
+    .pill-amber { background: #fef3c7; color: #92400e; }
+
+    /* Tables */
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin: 12px 0;
+    }
+
+    table.data-table th, table.data-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    table.data-table th {
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 700;
+    }
+
+    table.data-table tr:hover {
+      background: #f8fafc;
+    }
+
+    /* Controls Bar */
+    .deck-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 32px;
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
+      width: 95vw;
+      max-width: 1280px;
+      border-radius: 0 0 16px 16px;
+    }
+
+    .btn {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      color: #334155;
+      transition: all 0.15s ease;
+    }
+
+    .btn:hover {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-light);
+    }
+
+    .slide-counter {
+      font-size: 14px;
+      font-weight: 700;
+      color: #64748b;
+    }
+
+    /* Speaker Notes Modal */
+    #notes-panel {
+      display: none;
+      position: absolute;
+      bottom: 60px;
+      right: 20px;
+      width: 440px;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(8px);
+      color: #f8fafc;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      font-size: 13px;
+      line-height: 1.6;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    #notes-panel h4 {
+      color: #60a5fa;
+      margin-bottom: 8px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background: var(--primary-light);
+      transition: width 0.3s ease;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="deck-container">
+    <div class="progress-bar" id="progress-bar"></div>
+
+    <!-- ================= SLIDE 1: Title ================= -->
+    <div class="slide active" id="slide-1" data-notes="Welcome the committee. Introduce the research theme: Bandwidth vs Time Efficiency. Explain that this midsem evaluation directly answers the fundamental trade-off between semantic S2S and cascade S2T2S pipelines with empirical data.">
+      <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+        <span class="highlight-pill pill-blue" style="margin-bottom: 16px;">IIIT ALLAHABAD • MINOR PROJECT MIDSEM EVALUATION</span>
+        <h1 style="font-size: 38px; font-weight: 800; color: #0f172a; max-width: 900px; line-height: 1.25; margin-bottom: 16px;">
+          Bandwidth vs. Time Efficiency: Semantic S2S vs. S2T2S Pipelines
+        </h1>
+        <p style="font-size: 18px; color: #475569; max-width: 750px; margin-bottom: 32px; line-height: 1.5;">
+          Proving the Fundamental Trade-Off Between Data Compression and Streaming Latency in Neural Speech Communication
+        </p>
+        <div style="display: flex; gap: 16px; margin-bottom: 32px;">
+          <span class="highlight-pill pill-green">SenseVoice STT</span>
+          <span class="highlight-pill pill-blue">DeepSC Transformer (AWGN / Rayleigh / Rician)</span>
+          <span class="highlight-pill pill-amber">Emotion Kokoro TTS</span>
+          <span class="highlight-pill pill-red">SpeechTokenizer / Mimi Codecs</span>
+        </div>
+        <p style="font-size: 14px; color: #64748b; font-weight: 600;">
+          Department of Electronics & Communication Engineering • September 2026
+        </p>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 2: Motivation ================= -->
+    <div class="slide" id="slide-2" data-notes="Highlight the core paradox: On modern networks, physical byte transmission is instant (<3 ms). However, S2T2S introduces huge delay (5-20 seconds). Contrast the bandwidth mindset with the latency mindset. Mention ITU-T G.114 standard (200 ms conversational limit).">
+      <div class="slide-header">
+        <h2>The Motivation: The Bandwidth vs. Latency Paradox</h2>
+        <span class="tag">Problem Formulation</span>
+      </div>
+      <div class="grid-2">
+        <div class="card" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
+          <h3 style="color: var(--primary);">🌐 The Bandwidth Perspective</h3>
+          <ul class="bullets">
+            <li><strong>Text as Ultimate Compression:</strong> Transcribing acoustic speech into text drops bitrate to <strong>100–150 bps</strong> (40–100× smaller than traditional G.711 / Opus codecs).</li>
+            <li><strong>Shannon Capacity Limits:</strong> Mobile and satellite spectrum is crowded; compressing speech into compact symbolic tokens saves vital wireless channel uses.</li>
+            <li><strong>The Common Premise:</strong> If S2T2S uses fewer bits, isn't it the obvious winner?</li>
+          </ul>
+        </div>
+        <div class="card" style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
+          <h3 style="color: var(--accent-red);">⏱️ The Time Efficiency Perspective</h3>
+          <ul class="bullets">
+            <li><strong>Modern Link Realities:</strong> Over 4G/5G/Wi-Fi, transmitting a 500-byte token payload takes <strong>< 3 ms</strong>. <em>Physical transmission delay is negligible</em>.</li>
+            <li><strong>Human Interaction Limit:</strong> ITU-T G.114 mandates delay <strong>< 200 ms</strong> for natural interactive speech. Delays > 400 ms cause catastrophic conversational overlap.</li>
+            <li><strong>The Question:</strong> What good is a 100 bps stream if the listener must wait 10 seconds before hearing the first word?</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 3: Architecture ================= -->
+    <div class="slide" id="slide-3" data-notes="Walk through both architectures. In S2T2S, explain our trained DeepSC model with 22,234 vocabulary, trained across AWGN, Rayleigh, and Rician channels. In S2S, explain frame-by-frame RVQ neural codecs (SpeechTokenizer, Mimi).">
+      <div class="slide-header">
+        <h2>System Architecture: S2T2S vs. Direct Semantic S2S</h2>
+        <span class="tag">Architectures</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 20px; height: 100%; justify-content: center;">
+        <div class="card" style="border-left: 4px solid #ef4444;">
+          <h3 style="color: #b91c1c;">Pipeline B: Cascade S2T2S (Implemented & Trained in Project)</h3>
+          <p style="font-size: 13.5px; color: #475569; margin-bottom: 12px;">
+            Input Audio ➔ <strong>SenseVoice ASR</strong> (Text + Emotion + Gender) ➔ <strong>DeepSC Encoder</strong> (16 channel symbols/token) ➔ <strong>Wireless Channel</strong> (AWGN / Rayleigh / Rician) ➔ <strong>DeepSC Decoder</strong> ➔ <strong>Kokoro TTS</strong> ➔ Output Audio
+          </p>
+          <div style="display: flex; gap: 10px;">
+            <span class="highlight-pill pill-red">Phrase-Level Buffering</span>
+            <span class="highlight-pill pill-blue">3-Stage Cascaded Neural Models</span>
+            <span class="highlight-pill pill-green">Max Text Compression</span>
+          </div>
+        </div>
+
+        <div class="card" style="border-left: 4px solid #10b981;">
+          <h3 style="color: #047857;">Pipeline A: Direct Semantic S2S (Streaming Audio Tokenizers)</h3>
+          <p style="font-size: 13.5px; color: #475569; margin-bottom: 12px;">
+            Input Audio ➔ <strong>Streaming Neural Tokenizer</strong> (SpeechTokenizer / Mimi: 20 ms frames) ➔ <strong>Semantic Symbols Stream</strong> ➔ <strong>Wireless Channel</strong> ➔ <strong>Streaming Neural Vocoder</strong> ➔ Continuous Audio Output
+          </p>
+          <div style="display: flex; gap: 10px;">
+            <span class="highlight-pill pill-green">Frame-Level Streaming (20 ms)</span>
+            <span class="highlight-pill pill-green">Single-Pass Vocoding</span>
+            <span class="highlight-pill pill-amber">Higher Bitrate (~1,100–1,500 bps)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 4: Delay Formulation ================= -->
+    <div class="slide" id="slide-4" data-notes="Explain the mathematical deconstruction of delay. State why T_transmission is trivial (<3ms). Focus on the two key drivers: The Context Bottleneck (algorithmic lookahead) and the Computational Cascade (sequential inference).">
+      <div class="slide-header">
+        <h2>Theoretical Delay Formulation: Mathematical Roots of Latency</h2>
+        <span class="tag">Mathematical Model</span>
+      </div>
+      <div style="margin-bottom: 18px; text-align: center; background: #eff6ff; padding: 12px; border-radius: 8px;">
+        <span style="font-size: 18px; font-weight: 800; color: #1e3a8a;">
+          Total Delay = T<sub>buffering</sub> + T<sub>encode</sub> + T<sub>transmission</sub> + T<sub>decode</sub>
+        </span>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="color: #dc2626;">1. The Context Bottleneck (Algorithmic)</h3>
+          <ul class="bullets">
+            <li><strong>ASR Sentence Lookahead:</strong> Models like Whisper / SenseVoice cannot emit grammatically correct text token-by-token in real time. They must buffer a complete clause:
+              <br><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 12px;">T_buffering ≈ Audio Duration (1.5s to 25s)</code>
+            </li>
+            <li><strong>TTS Prosodic Context:</strong> Acoustic models require full sentences to compute natural pitch contours and cadence before generating the first PCM wave.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 style="color: #2563eb;">2. The Computational Cascade (Inference)</h3>
+          <ul class="bullets">
+            <li><strong>Sequential Generative Execution:</strong>
+              <br>1. SenseVoice ASR Forward Pass (250–1,200 ms)
+              <br>2. DeepSC Transformer Greedy Decoding (20–250 ms)
+              <br>3. Kokoro Neural TTS Synthesis (1,500–3,000 ms)
+            </li>
+            <li><strong>Semantic S2S Contrast:</strong> Operates on fixed 20 ms frames. Encoding takes ~5 ms, streaming vocoder takes ~15 ms. Total TTFA < 65 ms!</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 5: Benchmark Matrix ================= -->
+    <div class="slide" id="slide-5" data-notes="Present the experimental design. 6 standardized audio samples, 3 wireless channels, -5 to 20 dB SNR. Explain hardware-level instrumentation with time.perf_counter().">
+      <div class="slide-header">
+        <h2>Experimental Setup & The 2×2 Benchmark Matrix</h2>
+        <span class="tag">Methodology</span>
+      </div>
+      <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 12px;">
+        Conducted 72 rigorous experimental trials across 6 standardized test corpus samples, evaluating across two primary axes: <strong>Data Rate (Bandwidth)</strong> and <strong>Time Efficiency (Latency)</strong>.
+      </p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Metric Dimension</th>
+            <th>Pipeline A: Semantic S2S (SpeechTokenizer)</th>
+            <th>Pipeline A: Neural Codec (Kyutai Mimi)</th>
+            <th>Pipeline B: Cascade S2T2S (SenseVoice + DeepSC)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Effective Bitrate</strong></td>
+            <td>1,500 bps</td>
+            <td>1,100 bps</td>
+            <td><strong>622 – 1,077 bps (Winner)</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Time-to-First-Audio (TTFA)</strong></td>
+            <td><strong>63.0 ms (Winner)</strong></td>
+            <td><strong>43.0 ms (Winner)</strong></td>
+            <td>11,743.2 ms (11.7 s avg lag)</td>
+          </tr>
+          <tr>
+            <td><strong>Algorithmic Buffer</strong></td>
+            <td><strong>20 ms Frame (Winner)</strong></td>
+            <td><strong>12.5 ms Frame (Winner)</strong></td>
+            <td>Whole Phrase (1,590 to 24,685 ms)</td>
+          </tr>
+          <tr>
+            <td><strong>Inference Complexity</strong></td>
+            <td>Single-pass convolutional stream</td>
+            <td>Lightweight causal RVQ</td>
+            <td>3-Stage Generative Cascade</td>
+          </tr>
+          <tr>
+            <td><strong>Interactive Usability</strong></td>
+            <td><strong>Real-Time Conversational</strong></td>
+            <td><strong>Real-Time Conversational</strong></td>
+            <td>Non-interactive / Store-and-Forward</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ================= SLIDE 6: Bandwidth Results ================= -->
+    <div class="slide" id="slide-6" data-notes="Chart 1: Point to the long-duration paragraph bars. Note that S2T2S drops to 622 bps. Explain text semantic compression advantage.">
+      <div class="slide-header">
+        <h2>Empirical Result 1: Bandwidth Efficiency (S2T2S Wins)</h2>
+        <span class="tag">Metric 1: Bitrate</span>
+      </div>
+      <div class="grid-2">
+        <div class="chart-box">
+          <img src="../outputs/charts/bandwidth_comparison.png" alt="Bandwidth Comparison Chart">
+        </div>
+        <div>
+          <h3 style="color: var(--primary); margin-bottom: 12px;">Key Findings on Data Rate:</h3>
+          <ul class="bullets">
+            <li><strong>Short Utterances (<3s):</strong> S2T2S requires ~1,127 bps due to DeepSC start/end token symbols and 16-dim representation.</li>
+            <li><strong>Extended Paragraphs (>20s):</strong> S2T2S effective bitrate drops to <strong>622 bps</strong>!</li>
+            <li><strong>Compression Superiority:</strong> S2T2S is <strong>up to 2.4× more bandwidth-efficient</strong> than SpeechTokenizer (1,500 bps) and <strong>1.8×</strong> more efficient than Mimi (1,100 bps).</li>
+            <li><strong>Linguistic Rationale:</strong> Human language syntax discards acoustic pitch, room acoustics, and breath sounds, transmitting pure conceptual semantics.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 7: TTFA Results ================= -->
+    <div class="slide" id="slide-7" data-notes="Chart 2: The critical contrast. Point out the amber 200ms line. S2S is at 43-63ms. S2T2S is at 5,000-29,000ms. A 186x to 273x latency disparity.">
+      <div class="slide-header">
+        <h2>Empirical Result 2: Time-to-First-Audio (Semantic S2S Wins)</h2>
+        <span class="tag">Metric 2: TTFA</span>
+      </div>
+      <div class="grid-2">
+        <div class="chart-box">
+          <img src="../outputs/charts/ttfa_comparison.png" alt="TTFA Latency Chart">
+        </div>
+        <div>
+          <h3 style="color: var(--accent-green); margin-bottom: 12px;">Key Findings on Interactive Latency:</h3>
+          <ul class="bullets">
+            <li><strong>The 200 ms Conversational Standard:</strong> ITU-T G.114 mandates audio return under 200 ms for natural telepresence.</li>
+            <li><strong>S2S Real-Time Mastery:</strong>
+              <br>• SpeechTokenizer: <strong>63.0 ms</strong>
+              <br>• Kyutai Mimi: <strong>43.0 ms</strong>
+            </li>
+            <li><strong>S2T2S Latency Explosion:</strong>
+              <br>• Short greeting: <strong>5,278 ms</strong>
+              <br>• Paragraph: <strong>29,169 ms</strong>
+            </li>
+            <li><strong>Empirical Speedup:</strong> Semantic S2S delivers the first audible speech wave <strong>186× to 273× faster</strong> than cascade S2T2S!</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 8: Context Bottleneck ================= -->
+    <div class="slide" id="slide-8" data-notes="Chart 3: Deconstruct the 7.25-second utterance. Phrase buffering is 7,248 ms (65.6%). Prove that even with instantaneous compute, S2T2S still has 7+ seconds of delay.">
+      <div class="slide-header">
+        <h2>Root Cause Analysis: Proving the Context Bottleneck</h2>
+        <span class="tag">Latency Deconstruction</span>
+      </div>
+      <div class="grid-2">
+        <div class="chart-box">
+          <img src="../outputs/charts/latency_breakdown.png" alt="Latency Breakdown Stacked Bar Chart">
+        </div>
+        <div>
+          <h3 style="color: #b91c1c; margin-bottom: 10px;">Why More Compute Cannot Fix S2T2S:</h3>
+          <ul class="bullets">
+            <li><strong>Deconstructing a 7.25s Utterance:</strong>
+              <br>🟥 <strong>Phrase Buffering:</strong> 7,248 ms (<strong>65.6%</strong> of total delay)
+              <br>🟧 <strong>SenseVoice Inference:</strong> 627 ms (5.7%)
+              <br>🟦 <strong>DeepSC Transmission:</strong> 175 ms (1.6%)
+              <br>🟪 <strong>Kokoro Synthesis:</strong> 3,000 ms (27.1%)
+            </li>
+            <li><strong>The Mathematical Proof:</strong>
+              Even if compute latency was reduced to zero (T<sub>compute</sub> = 0), S2T2S would still require <strong>7.25 seconds of delay</strong> due to linguistic phrase buffering.
+            </li>
+            <li><strong>Semantic S2S:</strong> Emits output after the very first 20 ms frame arrives!</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 9: Duration Scaling ================= -->
+    <div class="slide" id="slide-9" data-notes="Chart 4: Left panel shows linear O(N) scaling for S2T2S vs flat O(1) for S2S. Right panel shows RTF. S2T2S has low compute RTF (0.06), but buffering prevents streaming.">
+      <div class="slide-header">
+        <h2>Scaling Behavior: TTFA vs. Duration & Throughput (RTF)</h2>
+        <span class="tag">Scaling Complexity</span>
+      </div>
+      <div class="grid-2">
+        <div class="chart-box">
+          <img src="../outputs/charts/rtf_vs_duration.png" alt="Duration Scaling & RTF Plot">
+        </div>
+        <div>
+          <h3 style="color: var(--secondary); margin-bottom: 10px;">Duration Scaling & The RTF Nuance:</h3>
+          <ul class="bullets">
+            <li><strong>Algorithmic Complexity:</strong>
+              <br>• <strong>S2T2S:</strong> $\mathcal{O}(N)$ linear degradation. For every second the speaker talks, TTFA increases by 1 second.
+              <br>• <strong>S2S:</strong> $\mathcal{O}(1)$ constant latency. Fixed at <strong>63 ms</strong> regardless of whether audio is 1 sec or 60 sec!
+            </li>
+            <li><strong>Real-Time Factor (RTF) Analysis:</strong>
+              <br>• S2T2S achieves an RTF of <strong>0.06 to 0.15</strong> on long texts (16× faster than real-time compute).
+              <br>• <em>Crucial Lesson:</em> Fast compute throughput is meaningless for conversational streaming if the pipeline is blocked behind an input phrase buffer.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 10: Pareto Frontier ================= -->
+    <div class="slide" id="slide-10" data-notes="Chart 5: THE MONEY SLIDE. Walk through the Pareto Frontier. Explain the two distinct operational zones: Conversational Streaming Zone vs Bandwidth Archival Zone. State the core engineering takeaway.">
+      <div class="slide-header">
+        <h2>The Definitive Proof: The Empirical Pareto Frontier</h2>
+        <span class="tag">The Money Slide ⭐</span>
+      </div>
+      <div class="grid-2">
+        <div class="chart-box">
+          <img src="../outputs/charts/tradeoff_scatter.png" alt="Pareto Frontier Scatter Plot">
+        </div>
+        <div>
+          <h3 style="color: var(--primary); margin-bottom: 12px;">Mapping the Operating Regimes:</h3>
+          <ul class="bullets">
+            <li><strong>The Pareto Frontier:</strong>
+              No pipeline occupies the bottom-left "ideal origin" (low bandwidth + low latency).
+            </li>
+            <li><strong>Zone 1: Conversational Streaming Zone (S2S):</strong>
+              <br>• 43–63 ms TTFA | 1,100–1,500 bps
+              <br>• <em>Mandatory for:</em> Live VoIP calls, teleoperation, conversational AI voice agents.
+            </li>
+            <li><strong>Zone 2: Bandwidth-Constrained Archival Zone (S2T2S):</strong>
+              <br>• 5,000–29,000 ms TTFA | 622–1,000 bps
+              <br>• <em>Optimal for:</em> Satellite uplinks, voice messaging, sensor telemetry.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 11: Wireless Robustness ================= -->
+    <div class="slide" id="slide-11" data-notes="Chart 6: Show DeepSC wireless channel robustness. Explain that our model was trained on Europarl and handles AWGN, Rayleigh fading, and Rician fading without cliff effect.">
+      <div class="slide-header">
+        <h2>Physical-Layer Wireless Robustness: DeepSC Under Channel Fading</h2>
+        <span class="tag">Channel Fidelity</span>
+      </div>
+      <div class="grid-2">
+        <div class="chart-box">
+          <img src="../outputs/charts/snr_vs_fidelity.png" alt="SNR vs Semantic Fidelity Plot">
+        </div>
+        <div>
+          <h3 style="color: var(--primary); margin-bottom: 10px;">DeepSC Channel Simulation Results:</h3>
+          <ul class="bullets">
+            <li><strong>Evaluated Channels:</strong>
+              <br>• AWGN (Thermal Noise)
+              <br>• Rayleigh Fading (Urban Non-Line-of-Sight Multipath)
+              <br>• Rician Fading (Strong Line-of-Sight Component, $K=1.0$)
+            </li>
+            <li><strong>Overcoming the Digital Cliff Effect:</strong>
+              <br>Traditional digital systems (e.g. LDPC + 16-QAM) suffer abrupt total failure when SNR drops below a sharp threshold.
+            </li>
+            <li><strong>Semantic Resilience:</strong>
+              <br>DeepSC's continuous vector constellation ensures that even under severe noise (-5 dB to 0 dB), core semantic meaning is preserved gracefully.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 12: Conclusion ================= -->
+    <div class="slide" id="slide-12" data-notes="Conclude the presentation. Summarize the proved thesis. Highlight our complete working system (SenseVoice + DeepSC + Kokoro + Gradio UI). State roadmap for endsem. Open for questions.">
+      <div class="slide-header">
+        <h2>Engineering Conclusion & Midsem Defense Summary</h2>
+        <span class="tag">Conclusion</span>
+      </div>
+      <div class="grid-2">
+        <div class="card" style="border-left: 4px solid #1e3a8a;">
+          <h3 style="color: #1e3a8a;">The Proven Engineering Conclusion</h3>
+          <blockquote style="font-size: 13.5px; font-style: italic; color: #334155; line-height: 1.6; border-left: 2px solid #cbd5e1; padding-left: 12px; margin: 10px 0;">
+            "Converting speech to text yields a 1.4× to 2.4× reduction in bandwidth over neural speech tokenization, but introduces a severe 186× to 273× latency penalty due to phrase-level context buffering and cascading model inference. Therefore, Direct Semantic S2S is not optimized for raw compression, but for preserving streaming conversational flow."
+          </blockquote>
+          <ul class="bullets" style="margin-top: 10px;">
+            <li><strong>Midsem Deliverables:</strong> Complete working S2T2S pipeline with emotion/gender prosody, 2×2 benchmark matrix, 72 automated trials, 6 publication charts.</li>
+          </ul>
+        </div>
+        <div class="card" style="border-left: 4px solid #10b981;">
+          <h3 style="color: #047857;">Live Demonstration & Roadmap</h3>
+          <ul class="bullets">
+            <li><strong>Operational Web Dashboard:</strong> Real-time Gradio demo (`run_ui.bat`) featuring microphone input, channel fading controls, constellation mapping, and live bandwidth savings infographic.</li>
+            <li><strong>Endsem Roadmap:</strong>
+              <br>1. Hardware-in-the-loop over-the-air testbed with Software Defined Radio (USRP/HackRF).
+              <br>2. Full native integration of Kyutai Mimi streaming codec directly into the DeepSC physical transmission loop.
+              <br>3. PESQ / STOI objective acoustic evaluation.
+            </li>
+          </ul>
+          <div style="margin-top: 14px; text-align: center;">
+            <span class="highlight-pill pill-green" style="font-size: 14px; padding: 6px 18px;">Ready for Q&A and Live Demo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Navigation Bar -->
+  <div class="deck-controls">
+    <div style="display: flex; gap: 8px;">
+      <button class="btn" id="btn-prev" onclick="prevSlide()">❮ Previous</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextSlide()">Next ❯</button>
+      <button class="btn" id="btn-notes" onclick="toggleNotes()">📝 Notes (N)</button>
+    </div>
+    <div class="slide-counter" id="slide-counter">Slide 1 / 12</div>
+    <div>
+      <button class="btn" onclick="toggleFullscreen()">⛶ Fullscreen (F)</button>
+    </div>
+  </div>
+
+  <!-- Speaker Notes Overlay -->
+  <div id="notes-panel">
+    <h4>Speaker Notes (Oral Defense Script)</h4>
+    <p id="notes-content">Welcome notes...</p>
+  </div>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 12;
+
+    function updateSlide() {
+      // Toggle slides
+      document.querySelectorAll('.slide').forEach((s, idx) => {
+        s.classList.toggle('active', idx + 1 === currentSlide);
+      });
+
+      // Update counter
+      document.getElementById('slide-counter').textContent = `Slide ${currentSlide} / ${totalSlides}`;
+
+      // Update progress bar
+      const progress = ((currentSlide - 1) / (totalSlides - 1)) * 100;
+      document.getElementById('progress-bar').style.width = `${progress}%`;
+
+      // Update speaker notes
+      const activeSlideEl = document.getElementById(`slide-${currentSlide}`);
+      const notes = activeSlideEl.getAttribute('data-notes') || 'No notes for this slide.';
+      document.getElementById('notes-content').textContent = notes;
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function toggleNotes() {
+      const panel = document.getElementById('notes-panel');
+      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {});
+      } else {
+        document.exitFullscreen().catch(err => {});
+      }
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      } else if (e.key === 'n' || e.key === 'N') {
+        toggleNotes();
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullscreen();
+      }
+    });
+
+    // Initialize
+    updateSlide();
+  </script>
+</body>
+</html>

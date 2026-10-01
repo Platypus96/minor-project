@@ -66,6 +66,14 @@ class EmotionTTS:
         emotion = emotion.upper()
         gender = gender.upper()
 
+        # Guard: never send empty text to the API (causes 400 Bad Request)
+        text = (text or "").strip()
+        if not text:
+            raise ValueError(
+                "TTS received empty text. This usually means DeepSC produced no output. "
+                "Check that your audio was transcribed correctly and the language is set properly."
+            )
+
         voice = self.voices.get(gender, self.voices["FEMALE"])
         instruct = EMOTION_INSTRUCTIONS.get(emotion, EMOTION_INSTRUCTIONS["NEUTRAL"])
 

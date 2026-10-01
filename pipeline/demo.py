@@ -113,11 +113,16 @@ def bleu_bar_html(bleu: float) -> str:
     return f"""
     <div class="bleu-wrap">
         <div class="bleu-row">
-            <span>BLEU Score</span>
+            <span>BLEU Score <small style="font-weight:400;color:#64748b;">(English channel text)</small></span>
             <span>{bleu:.4f}</span>
         </div>
         <div class="bleu-track">
             <div class="bleu-fill" style="width:{pct}%"></div>
+        </div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:4px;">
+            Measured on English text sent &rarr; received through DeepSC.
+            Non-English input is translated to English before the channel
+            and back to the source language after.
         </div>
     </div>
     """

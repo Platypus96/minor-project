@@ -51,8 +51,13 @@ class SpeechEmotionExtractor:
         """
         from pipeline.translation import detect_language_from_tag
 
-        # SenseVoice expects 'auto' or a specific language code
-        sv_lang = language if language != "auto" else "auto"
+        # SenseVoice natively supports: auto, en, zh, ja, ko, yue.
+        # For any other explicit language (hi, fr, de, es, ar, pt, ru, it …)
+        # we still pass 'auto' so SenseVoice can transcribe cleanly, then
+        # override detected_lang with the user's chosen code so the
+        # translation bridge routes correctly.
+        _SV_NATIVE = {"auto", "en", "zh", "ja", "ko", "yue"}
+        sv_lang = language if language in _SV_NATIVE else "auto"
 
         # --- SenseVoice inference ---
         result = self.model.generate(
@@ -68,8 +73,13 @@ class SpeechEmotionExtractor:
         emotion = self._parse_emotion(raw_text)
         clean_text = self._clean_text(raw_text)
 
-        # --- Detect language from SenseVoice tags ---
-        detected_lang = detect_language_from_tag(raw_text) if language == "auto" else language
+        # --- Determine detected language ---
+        # If user explicitly chose a language, trust that over SenseVoice tags.
+        # If 'auto', parse it from the SenseVoice output tags.
+        if language != "auto":
+            detected_lang = language
+        else:
+            detected_lang = detect_language_from_tag(raw_text)
 
         # --- Gender from pitch ---
         gender = self._detect_gender(audio_path)

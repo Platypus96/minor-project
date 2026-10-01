@@ -93,15 +93,15 @@ def detect_language_from_tag(raw_sensevoice_output: str) -> str:
 def translate_to_english(text: str, source_lang: str) -> str:
     """
     Translate `text` from `source_lang` to English.
-    Returns the original text unchanged if source_lang is 'en' or translation
-    fails.
+    Returns the original text unchanged if source_lang is 'en', 'auto',
+    or translation fails.
     """
-    if source_lang == "en" or not text.strip():
+    if source_lang in ("en", "auto") or not text.strip():
         return text
     try:
         GoogleTranslator = _get_translator()
         translated = GoogleTranslator(source=source_lang, target="en").translate(text)
-        print(f"[Translate] {source_lang} -> en: '{text[:60]}...' => '{translated[:60]}...'")
+        print(f"[Translate] {source_lang} -> en: '{text[:60]}' => '{translated[:60]}'")
         return translated or text
     except Exception as e:
         print(f"[Translate] Warning: translation failed ({e}), using original text.")
@@ -111,15 +111,15 @@ def translate_to_english(text: str, source_lang: str) -> str:
 def translate_from_english(text: str, target_lang: str) -> str:
     """
     Translate `text` from English to `target_lang`.
-    Returns the original text unchanged if target_lang is 'en' or translation
-    fails.
+    Returns the original text unchanged if target_lang is 'en', 'auto',
+    or translation fails.
     """
-    if target_lang == "en" or not text.strip():
+    if target_lang in ("en", "auto") or not text.strip():
         return text
     try:
         GoogleTranslator = _get_translator()
         translated = GoogleTranslator(source="en", target=target_lang).translate(text)
-        print(f"[Translate] en -> {target_lang}: '{text[:60]}...' => '{translated[:60]}...'")
+        print(f"[Translate] en -> {target_lang}: '{text[:60]}' => '{translated[:60]}'")
         return translated or text
     except Exception as e:
         print(f"[Translate] Warning: reverse translation failed ({e}), using English.")

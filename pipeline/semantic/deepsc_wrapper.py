@@ -206,7 +206,9 @@ class DeepSCWrapper:
         decoded_indices = rx.squeeze(0).round().long().clamp(0, len(vocab) - 1)
         decoded_words = [idx2word.get(i.item(), "<UNK>") for i in decoded_indices]
 
-        return " ".join(decoded_words)
+        result = " ".join(decoded_words)
+        # Safety: should never be empty in mock mode, but guard anyway
+        return result if result.strip() else text
 
     # ------------------------------------------------------------------ #
     #  REAL mode — trained DeepSC model                                   #
@@ -355,6 +357,13 @@ class DeepSCWrapper:
         output_indices = result_indices[0].cpu().numpy().tolist()
         reconstructed = self._indices_to_text(output_indices)
 
+        # Safety: if model returned empty (can happen with short/OOV input),
+        # fall back to the normalized input so the rest of the pipeline
+        # (back-translation, TTS) never receives an empty string.
+        if not reconstructed.strip():
+            print("[DeepSC] ⚠ Empty reconstruction — falling back to normalized input text.")
+            reconstructed = _normalize_string(text)
+
         return reconstructed
 
     def _greedy_decode(
@@ -367,6 +376,7 @@ class DeepSCWrapper:
         """
         Greedy autoregressive decoding — matches the training repo's
         greedy_decode() function exactly.
+        Stops early when the END token is predicted.
         """
         # Create source mask
         src_mask = (src == self.pad_idx).unsqueeze(-2).type(torch.FloatTensor).to(self.device)
@@ -390,7 +400,7 @@ class DeepSCWrapper:
         # Channel decode
         memory = model.channel_decoder(rx_sig)
 
-        # Autoregressive decoding
+        # Autoregressive decoding — stop early on END token
         outputs = torch.ones(src.size(0), 1).fill_(self.start_idx).type_as(src.data)
 
         for i in range(max_len - 1):
@@ -405,6 +415,10 @@ class DeepSCWrapper:
             prob = pred[:, -1:, :]  # (batch, 1, vocab_size)
             _, next_word = torch.max(prob, dim=-1)
             outputs = torch.cat([outputs, next_word], dim=1)
+
+            # Stop early if END token is predicted
+            if next_word.item() == self.end_idx:
+                break
 
         return outputs
 
